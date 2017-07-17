@@ -1,0 +1,392 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.iapsolutions</groupId>
+    <artifactId>gwZmqMqtt</artifactId>
+    <version>1.0.0</version>
+    <name>gwZmqMqtt</name>
+    <description>Gateway between ZMQ and MQTT brokers</description>
+    <url>http://www.iapsolutions.com</url>
+    <packaging>jar</packaging>
+
+    <!-- Project requires Maven 3.X -->
+    <prerequisites>
+        <maven>3.1</maven>
+    </prerequisites>
+
+    <profiles>
+        <!-- profile.user -->
+        <profile>
+            <id>robm</id>
+            <properties>
+                <profile.user>robm</profile.user>
+                <profile.finalName.user>-${profile.user}</profile.finalName.user>
+            </properties>
+        </profile>
+        <!-- profile.env -->
+        <profile>
+            <id>local</id>
+            <properties>
+                <profile.env>local</profile.env>
+                <profile.finalName.prefix>${project.artifactId}</profile.finalName.prefix>
+                <profile.finalName.env>-${profile.env}</profile.finalName.env>
+                <profile.finalName.version></profile.finalName.version>
+            </properties>
+            <build>
+                <resources>
+                    <!-- O&M scripts -->
+                    <resource>
+                        <directory>${basedir}/src/main/resources/bin</directory>
+                        <excludes>
+                            <exclude>**/*.*</exclude>
+                        </excludes>
+                    </resource>
+                    <!-- Environment -->
+                    <resource>
+                        <directory>${basedir}/src/main/resources/properties/develop/${profile.user}</directory>
+                        <includes>
+                            <include>${profile.env}.properties</include>
+                        </includes>
+                        <targetPath>${project.build.outputDirectory}/properties</targetPath>
+                    </resource>
+                    <resource>
+                        <directory>${basedir}/src/main/resources/properties</directory>
+                        <includes>
+                            <include>*.properties</include>
+                        </includes>
+                        <targetPath>${project.build.outputDirectory}/properties</targetPath>
+                    </resource>
+                    <resource>
+                        <directory>${basedir}/src/main/resources/properties/scope/${profile.scope}</directory>
+                        <includes>
+                            <include>*.properties</include>
+                        </includes>
+                        <targetPath>${project.build.outputDirectory}/properties</targetPath>
+                    </resource>
+                    <!-- Logs -->
+                    <resource>
+                        <directory>${basedir}/src/main/resources/properties/develop/${profile.user}</directory>
+                        <includes>
+                            <include>*logback*.xml</include>
+                        </includes>
+                        <targetPath>${project.build.outputDirectory}</targetPath>
+                    </resource>
+                    <resource>
+                        <directory>${basedir}/src/main/resources/properties</directory>
+                        <includes>
+                            <include>*logback*.xml</include>
+                        </includes>
+                        <targetPath>${project.build.outputDirectory}</targetPath>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+        <profile>
+            <id>development</id>
+            <properties>
+                <profile.env>dev</profile.env>
+                <profile.finalName.prefix>${project.artifactId}</profile.finalName.prefix>
+                <profile.finalName.env>-${profile.env}</profile.finalName.env>
+                <profile.finalName.version></profile.finalName.version>
+            </properties>
+            <build>
+                <resources>
+                    <!-- O&M scripts -->
+                    <resource>
+                        <directory>${basedir}/src/main/resources/bin</directory>
+                        <excludes>
+                            <exclude>**/*.*</exclude>
+                        </excludes>
+                    </resource>
+                    <!-- Environment -->
+                    <resource>
+                        <directory>${basedir}/src/main/resources/properties/develop/${profile.user}</directory>
+                        <includes>
+                            <include>${profile.env}.properties</include>
+                        </includes>
+                        <targetPath>${project.build.outputDirectory}/properties</targetPath>
+                    </resource>
+                    <resource>
+                        <directory>${basedir}/src/main/resources/properties</directory>
+                        <includes>
+                            <include>*.properties</include>
+                        </includes>
+                        <targetPath>${project.build.outputDirectory}/properties</targetPath>
+                    </resource>
+                    <resource>
+                        <directory>${basedir}/src/main/resources/properties/scope/${profile.scope}</directory>
+                        <includes>
+                            <include>*.properties</include>
+                        </includes>
+                        <targetPath>${project.build.outputDirectory}/properties</targetPath>
+                    </resource>
+                    <!-- Logs -->
+                    <resource>
+                        <directory>${basedir}/src/main/resources/properties/develop/${profile.user}</directory>
+                        <includes>
+                            <include>*logback*.xml</include>
+                        </includes>
+                        <targetPath>${project.build.outputDirectory}</targetPath>
+                    </resource>
+                    <resource>
+                        <directory>${basedir}/src/main/resources/properties</directory>
+                        <includes>
+                            <include>*logback*.xml</include>
+                        </includes>
+                        <targetPath>${project.build.outputDirectory}</targetPath>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+        <!-- profile.patch -->
+        <profile>
+            <id>patch</id>
+            <properties>
+                <control.description>Jar Application</control.description>
+                <profile.finalName.prefix>Patch-${project.git.name}</profile.finalName.prefix>
+                <profile.finalName.user></profile.finalName.user>
+                <profile.finalName.env></profile.finalName.env>
+                <profile.finalName.version>-${git.tags}</profile.finalName.version>
+            </properties>
+            <build>
+                <!-- Exclude resources from jar -->
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <excludes>
+                            <exclude>**/*</exclude>
+                        </excludes>
+                    </resource>
+                </resources>
+                <plugins>
+                    <plugin>
+                        <!-- Plugin for extract groovy bundle builder and assembler from the library with common dependencies -->
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>${maven.dependency.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>unpack</id>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.iapsolutions</groupId>
+                                            <artifactId>app-sw-mgmt</artifactId>
+                                            <version>1.0.0</version>
+                                            <type>jar</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/iap-dependencies</outputDirectory>
+                                            <includes>**/genConfig.groovy,**/genBundle.xml,**/bundleControl</includes>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Plugin for bundle generation -->
+                    <plugin>
+                        <groupId>org.codehaus.gmaven</groupId>
+                        <artifactId>groovy-maven-plugin</artifactId>
+                        <version>${groovy.maven.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <properties>
+                                        <base>${project.basedir}</base>
+                                        <target>${project.build.directory}</target>
+                                        <source>${project.basedir}/src/main/resources</source>
+                                        <targetConfig>${project.build.directory}/generated-config</targetConfig>
+                                        <environments>${project.basedir}/environments.txt</environments>
+                                        <scopes>${project.basedir}/scopes.txt</scopes>
+                                        <artifactId>${project.name}</artifactId>
+                                    </properties>
+                                    <source>${project.build.directory}/iap-dependencies/genConfig.groovy</source>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Plugin for bundle assembly -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                         <version>${maven.assembly.plugin.version}</version>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>${project.build.directory}/iap-dependencies/genBundle.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>export-configuration</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    <properties>
+        <!-- Maven versions -->
+        <maven.compiler.plugin.version>3.1</maven.compiler.plugin.version>
+        <maven.source.plugin.version>2.4</maven.source.plugin.version>
+        <maven.assembly.plugin.version>2.2-beta-4</maven.assembly.plugin.version>
+        <!-- Groovy maven plugin version -->
+        <groovy.maven.plugin.version>2.0</groovy.maven.plugin.version>
+        <maven.dependency.plugin.version>2.9</maven.dependency.plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- JDK Java versions -->
+        <java.version>1.8</java.version>
+        <!-- Logging versions -->
+        <slf4j.version>1.7.7</slf4j.version>
+        <logback.version>1.1.2</logback.version>
+        <!-- git-commit-id-plugin version -->
+        <git.commit.version>2.2.1</git.commit.version>
+        <!-- ZeroMQ version -->
+        <zeromq.version>0.3.4</zeromq.version>
+        <!-- Fact/JSON IAP library version -->
+        <factjsonparser.version>1.4.0</factjsonparser.version>
+    </properties>
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <!-- Logging: SL4J and LogBack dependencies -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <!-- IAP Dependencies -->
+        <dependency>
+            <groupId>com.iapsolutions</groupId>
+            <artifactId>factjsonparser</artifactId>
+            <version>${factjsonparser.version}</version>
+        </dependency>
+        <!-- ZMQ dependencies -->
+        <dependency>
+            <groupId>org.zeromq</groupId>
+            <artifactId>jeromq</artifactId>
+            <version>${zeromq.version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>${profile.finalName.prefix}${profile.finalName.user}${profile.finalName.env}${profile.finalName.version}</finalName>
+        <plugins>
+            <!-- Plugin for Jar generation -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.iapsolutions.mqtt.GatewayZmqMqtt</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- To specify an output directory for the copy-dependencies execution -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.5.1</version>
+                <executions>
+                  <execution>
+                    <id>copy-dependencies</id>
+                    <phase>prepare-package</phase>
+                    <goals>
+                    <goal>copy-dependencies</goal>
+                    </goals>
+                    <configuration>
+                    <outputDirectory>${project.build.directory}/lib/</outputDirectory>
+                    </configuration>
+                  </execution>
+                </executions>
+            </plugin>
+            <!-- To let the jar know where to find the lib folder -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>com.iapsolutions.mqtt.GatewayZmqMqtt</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <!-- Plugin for git information generation -->
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>${git.commit.version}</version>
+                <executions>
+                    <execution>
+                        <id>git-info</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <configuration>
+                            <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+                            <generateGitPropertiesFilename>${project.build.directory}/iap-dependencies/gitinfo</generateGitPropertiesFilename>
+                            <!-- only for debugging -->
+                            <!-- generateGitPropertiesFile>true</generateGitPropertiesFile -->
+                            <!-- -->
+                            <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                            <failOnUnableToExtractRepoInfo>false</failOnUnableToExtractRepoInfo>
+                            <dateFormat>yyyy-MM-dd HH:mm:ss</dateFormat>
+                            <validationProperties>
+                                <validationProperty>
+                                    <name>validating project version</name>
+                                    <value>${project.version}</value>
+                                    <shouldMatchTo>^.*(?&lt;!-SNAPSHOT)$</shouldMatchTo>
+                                </validationProperty>
+                            </validationProperties>
+                            <validationShouldFailIfNoMatch>false</validationShouldFailIfNoMatch>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <!-- Deploy new libraries -->
+    <distributionManagement>
+        <repository>
+            <id>iap-release</id>
+            <name>maven.dci.es-releases</name>
+            <url>http://11.0.0.180:8081/artifactory/libs-release-local</url>
+        </repository>
+    </distributionManagement>
+</project>
