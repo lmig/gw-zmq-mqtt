@@ -27,3 +27,11 @@ Removed
   * ...
 
 [Tag]
+
+
+[Tag v1.0.0] - 2017-07-17
+
+Added
+  * Initial release
+
+[Tag]

@@ -2,9 +2,9 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.iapsolutions</groupId>
-    <artifactId>gwZmqMqtt</artifactId>
+    <artifactId>gw-zmq-mqtt</artifactId>
     <version>1.0.0</version>
-    <name>gwZmqMqtt</name>
+    <name>gw-zmq-mqtt</name>
     <description>Gateway between ZMQ and MQTT brokers</description>
     <url>http://www.iapsolutions.com</url>
     <packaging>jar</packaging>
