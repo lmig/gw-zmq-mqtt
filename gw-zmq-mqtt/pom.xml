@@ -262,7 +262,7 @@
         <dependency>
             <groupId>org.eclipse.paho</groupId>
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-            <version>1.1.1</version>
+            <version>1.2.1</version>
         </dependency>
         <!-- Logging: SL4J and LogBack dependencies -->
         <dependency>
